@@ -1,5 +1,6 @@
 use clap::Parser;
-use image::{GenericImage, ImageBuffer, ImageError};
+use image::{GenericImage, ImageBuffer, ImageError, Rgba};
+use std::path::Path;
 
 /// Simple program to generate long dog
 #[derive(Parser, Debug)]
@@ -13,9 +14,9 @@ struct Args {
 fn main() -> Result<(), ImageError> {
     let args = Args::parse();
 
-    let img1 = image::open("images/data01.png").unwrap().to_rgba8();
-    let img2 = image::open("images/data02.png").unwrap().to_rgba8();
-    let img3 = image::open("images/data03.png").unwrap().to_rgba8();
+    let img1 = load_image("images/data01.png")?;
+    let img2 = load_image("images/data02.png")?;
+    let img3 = load_image("images/data03.png")?;
 
     let (width, height) = (
         img1.width() + img2.width() * args.long as u32 + img3.width(),
@@ -39,4 +40,9 @@ fn main() -> Result<(), ImageError> {
 
     println!("D{}ne!", "o".repeat(args.long as usize));
     Ok(())
+}
+
+fn load_image<P: AsRef<Path>>(path: P) -> Result<ImageBuffer<Rgba<u8>, Vec<u8>>, ImageError> {
+    let image = image::open(path)?.to_rgba8();
+    Ok(image)
 }
