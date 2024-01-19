@@ -14,11 +14,13 @@ struct Args {
 fn main() -> Result<(), ImageError> {
     let args = Args::parse();
 
-    let img1 = load_image("images/data01.png")?;
-    let img2 = load_image("images/data02.png")?;
-    let img3 = load_image("images/data03.png")?;
+    let images = load_images(&[
+        "images/data01.png",
+        "images/data02.png",
+        "images/data03.png",
+    ])?;
 
-    let img = conpose_images(&img1, &img2, &img3, args.long);
+    let img = conpose_images(&images, args.long);
 
     save_image(
         &img,
@@ -29,32 +31,31 @@ fn main() -> Result<(), ImageError> {
     Ok(())
 }
 
-fn load_image<P: AsRef<Path>>(path: P) -> Result<ImageBuffer<Rgba<u8>, Vec<u8>>, ImageError> {
-    let image = image::open(path)?.to_rgba8();
-    Ok(image)
+fn load_images<P: AsRef<Path>>(
+    paths: &[P],
+) -> Result<Vec<ImageBuffer<Rgba<u8>, Vec<u8>>>, ImageError> {
+    paths
+        .iter()
+        .map(|path| image::open(path).map(|img| img.to_rgba8()))
+        .collect()
 }
 
 fn conpose_images(
-    img1: &ImageBuffer<Rgba<u8>, Vec<u8>>,
-    img2: &ImageBuffer<Rgba<u8>, Vec<u8>>,
-    img3: &ImageBuffer<Rgba<u8>, Vec<u8>>,
+    images: &[ImageBuffer<Rgba<u8>, Vec<u8>>],
     long: u8,
 ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let (width, height) = (
-        img1.width() + img2.width() * long as u32 + img3.width(),
-        img1.height(),
+        images.iter().map(|img| img.width()).sum(),
+        images.iter().map(|img| img.height()).max().unwrap(),
     );
 
     let mut img = ImageBuffer::new(width, height);
-    img.copy_from(img1, 0, 0).unwrap();
 
+    let mut x = 0;
     for i in 0..long {
-        img.copy_from(img2, img1.width() + img2.width() * i as u32, 0)
-            .unwrap();
+        img.copy_from(&images[i as usize], x, 0).unwrap();
+        x += images[i as usize].width();
     }
-
-    img.copy_from(img3, img1.width() + img2.width() * long as u32, 0)
-        .unwrap();
 
     img
 }
