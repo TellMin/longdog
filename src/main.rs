@@ -1,4 +1,5 @@
 use clap::Parser;
+use image::{GenericImage, ImageBuffer};
 
 /// Simple program to generate long dog
 #[derive(Parser, Debug)]
@@ -11,6 +12,30 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let long_dog = format!("L{}ong dog", "o".repeat(args.long as usize));
-    println!("{}", long_dog);
+
+    let img1 = image::open("images/data01.png").unwrap().to_rgba8();
+    let img2 = image::open("images/data02.png").unwrap().to_rgba8();
+    let img3 = image::open("images/data03.png").unwrap().to_rgba8();
+
+    let (width, height) = (
+        img1.width() + img2.width() * args.long as u32 + img3.width(),
+        img1.height(),
+    );
+
+    let mut img = ImageBuffer::new(width, height);
+
+    img.copy_from(&img1, 0, 0).unwrap();
+
+    for i in 0..args.long {
+        img.copy_from(&img2, img1.width() + img2.width() * i as u32, 0)
+            .unwrap();
+    }
+
+    img.copy_from(&img3, img1.width() + img2.width() * args.long as u32, 0)
+        .unwrap();
+
+    img.save(format!("l{}ng_dog.png", "o".repeat(args.long as usize)))
+        .unwrap();
+
+    println!("D{}ne!", "o".repeat(args.long as usize));
 }
