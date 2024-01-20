@@ -57,3 +57,40 @@ impl Dog {
         img.save(filename)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let dog = Dog::new(1).unwrap();
+        assert_eq!(dog.long, 1);
+    }
+
+    #[test]
+    fn test_width() {
+        let dog = Dog::new(1).unwrap();
+        assert_eq!(dog.width(), 182);
+    }
+
+    #[test]
+    fn test_height() {
+        let dog = Dog::new(1).unwrap();
+        assert_eq!(dog.height(), 100);
+    }
+
+    #[test]
+    fn test_create_long_dog() {
+        let dog = Dog::new(1).unwrap();
+        let img = dog.create_long_dog().unwrap();
+        assert_eq!(img.width(), 182);
+        assert_eq!(img.height(), 100);
+    }
+
+    #[test]
+    fn test_save_long_dog() {
+        let dog = Dog::new(1).unwrap();
+        dog.save_long_dog("test.png").unwrap();
+    }
+}
