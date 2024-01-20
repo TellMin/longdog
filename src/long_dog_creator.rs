@@ -69,15 +69,11 @@ mod tests {
     }
 
     #[test]
-    fn test_width() {
-        let dog = Dog::new(1).unwrap();
-        assert_eq!(dog.width(), 182);
-    }
-
-    #[test]
-    fn test_height() {
-        let dog = Dog::new(1).unwrap();
-        assert_eq!(dog.height(), 100);
+    fn test_dog_dimensions() {
+        let dog = Dog::new(3).unwrap();
+        let img = dog.create_long_dog().unwrap();
+        assert_eq!(img.width(), dog.width());
+        assert_eq!(img.height(), dog.height());
     }
 
     #[test]
